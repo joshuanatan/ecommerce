@@ -10,14 +10,21 @@
             <h5>Search Data Here</h5>
             <input type = "text" class = "form-control form-control-sm col-lg-3 col-sm-12">
         </div>
-        <table class = "table table-sm table-bordered table-hover table-striped">
+        <table class = "table table-bordered table-hover table-striped">
             <thead>
                 <tr>
-                    <th style = "cursor:pointer" onclick = "sort('table_name')" class = "text-center align-middle">Coloumn 1<span class="badge badge-light align-top"> ASC</span></th>
+                    <th style = "cursor:pointer" onclick = "sort('table_name')" class = "text-center align-middle">Coloumn 1 <span class="badge badge-light align-top">ASC</span></th>
                     <th style = "cursor:pointer" onclick = "sort('table_name')" class = "text-center align-middle">Coloumn 2</th>
                 </tr>
             </thead>
-            <tbody id = "data_container">
+            <tbody>
+                <tr>
+                    <td class = "align-middle"></td>
+                    <td class = "align-middle text-center">
+                        <i style = "cursor:pointer;font-size:large" class = "text-primary md-edit"></i> | 
+                        <i style = "cursor:pointer;font-size:large" class = "text-danger md-delete"></i>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -72,20 +79,11 @@
 <script>
     function refresh(page = 1) {
         $.ajax({
-            url: "<?php echo base_url();?>",
+            url: "<?php echo base_url() ?>",
             type: "GET",
             dataType: "JSON",
             success: function(respond) {
                 var html = "";
-                for(var a = 0; a<respond["content"].length; a++){
-                    html += "<tr>";
-                    html += "<td>"+respond["content"][a]["col_name"]+"</td>";
-                    html += "<td><i style = 'cursor:pointer;font-size:large' class = 'text-primary md-edit'></i> | <i style = 'cursor:pointer;font-size:large' class = 'text-danger md-delete'></i></td>";
-                    html+= "</tr>";
-                }
-                $("#data_container").html(html);
-                
-                html = "";
                 if(respond["page"]["previous"]){
                     html += '<li class="page-item"><a class="page-link" onclick = "refresh('+(respond["page"]["before"])+')"><</a></li>';
                 }
