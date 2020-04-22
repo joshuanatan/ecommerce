@@ -175,6 +175,33 @@ class M_Account extends CI_Model{
         updateRow("mstr_acc",$data,$where);
         return true;
     }
+    public function login(){
+        $where = array(
+            "acc_email" => $this->acc_email,
+            "acc_status" => "ACTIVE"
+        );
+        $field = array(
+            "id_submit_acc","acc_name", "acc_pswd"
+        );
+        $result = selectRow("mstr_acc",$where,$field);
+        if($result->num_rows() > 0){
+            $result = $result->result_array();
+            if (password_verify($this->acc_pswd, $result[0]["acc_pswd"])){
+                $data = array(
+                    "id" => $result[0]["id_submit_acc"],
+                    "name" => $result[0]["acc_name"],
+                    "email" => $email 
+                );
+                return $data;
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+    }
     #setter & getter
     public function set_id_submit_acc($id_submit_acc){
         if($id_submit_acc != "" && is_numeric($id_submit_acc)){

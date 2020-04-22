@@ -100,8 +100,7 @@ class Welcome extends CI_Controller{
         $this->load->view("req_include/script");
     }
     public function register(){
-        //if(!$this->check_root_user()){
-        if(true){
+        if(!$this->check_root_user()){
             $config = array(
                 array(
                     "field" => "email",
@@ -132,13 +131,30 @@ class Welcome extends CI_Controller{
                 $email = $this->input->post("email");
                 $pswd = $this->input->post("password");
                 $phone = $this->input->post("phone");
+                $status = "ACTIVE";
+                $level = "SUPER ADMIN";
+                
+                $flag = true;
+                if(!$this->m_account->set_acc_name($name)){
+                    $flag = false;
+                }
+                if(!$this->m_account->set_acc_email($email)){
+                    $flag = false;
+                }
+                if(!$this->m_account->set_acc_pswd($pswd)){
+                    $flag = false;
+                }
+                if(!$this->m_account->set_acc_phone($phone)){
+                    $flag = false;
+                }
+                if(!$this->m_account->set_acc_status($status)){
+                    $flag = false;
+                }
+                if(!$this->m_account->set_acc_level($level)){
+                    $flag = false;
+                }
 
-                $this->m_account->set_acc_name($name);
-                $this->m_account->set_acc_email($email);
-                $this->m_account->set_acc_pswd($pswd);
-                $this->m_account->set_acc_phone($phone);
-
-                if($this->m_account->insert()){
+                if($this->m_account->insert() && $flag){
                     $msg = "Account Registered, Please Login";
                     $this->session->set_flashdata("msg",$msg);
                     $this->session->set_flashdata("type","success");
@@ -160,8 +176,8 @@ class Welcome extends CI_Controller{
             $msg = "Root user exists, please contact root user for registration";
             $this->session->set_flashdata("msg",$msg);
             $this->session->set_flashdata("type","danger");
-            redirect("welcome/sign_up");
         }
+        redirect("welcome/sign_up");
     }
     public function logout(){
         $msg = "Session removed, please re-login";
