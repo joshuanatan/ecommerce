@@ -85,14 +85,12 @@ class Welcome extends CI_Controller{
     }
     public function dashboard(){
         $this->check_session();
-        $this->load->view("req_include/head");
-        $this->load->view("req_include/page_open");
-        $this->load->view("req_include/navbar");
+        $this->page_generator->head();
+        $this->page_generator->page_open();
+        $this->page_generator->navbar($this->session->id_submit_acc);
         $this->load->view("dashboard/page_open");
         $this->load->view("dashboard/content");
-        $this->load->view("dashboard/page_close");
-        $this->load->view("req_include/page_close");
-        $this->load->view("req_include/script");
+        $this->page_generator->page_close();
     }
     public function sign_up(){
         

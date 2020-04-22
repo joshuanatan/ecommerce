@@ -3,6 +3,7 @@ defined("BASEPATH") or exit("No Direct Script Allowed");
 date_default_timezone_set("Asia/Jakarta");
 
 class M_Account extends CI_Model{
+    private $tbl_name = "mstr_acc";
     private $id_submit_acc = 0;
     private $acc_name = "";
     private $acc_email = "";
@@ -77,39 +78,22 @@ class M_Account extends CI_Model{
     }
     public function detail(){
         $where = array(
-            "acc_email" => $this->acc_email,
-            "acc_status" => "ACTIVE"
+            "id_submit_acc" => $this->id_submit_acc,
         );
         $field = array(
-            "id_submit_acc","acc_name", "acc_pswd"
+            "acc_name","acc_email","acc_phone","acc_status","acc_last_modified","acc_level"
         );
-        $result = selectRow("mstr_acc",$where,$field);
-        if($result->num_rows() > 0){
-            $result = $result->result_array();
-            if (password_verify($this->acc_pswd, $result[0]["acc_pswd"])){
-                $data = array(
-                    "id" => $result[0]["id_submit_acc"],
-                    "name" => $result[0]["acc_name"],
-                    "email" => $email 
-                );
-                return $data;
-            }
-            else{
-                return false;
-            }
-        }
-        else{
-            return false;
-        }
+        $result = selectRow($this->tbl_name,$where,$field);
+        return $result;
     }
     public function list(){
         $where = array(
             "acc_status !=" => "NOT ACTIVE"
         );
         $field = array(
-            "acc_name","acc_email","acc_phone","acc_status","acc_last_modified"
+            "acc_name","acc_email","acc_phone","acc_status","acc_last_modified","acc_level"
         );
-        $result = selectRow("mstr_acc",$where,$field);
+        $result = selectRow($this->tbl_name,$where,$field);
         return $result;
     }
     public function insert(){
@@ -117,7 +101,7 @@ class M_Account extends CI_Model{
             "acc_email" => $this->acc_email,
             "acc_status" => "ACTIVE"
         );
-        if(!isExistsInTable("mstr_acc",$where)){
+        if(!isExistsInTable($this->tbl_name,$where)){
             $data = array(
                 "acc_name"  => $this->acc_name,
                 "acc_email" => $this->acc_email,
@@ -130,7 +114,7 @@ class M_Account extends CI_Model{
                 "id_last_modified" => $this->id_last_modified,
                 "id_acc_created" => $this->id_acc_created,
             );
-            return insertRow("mstr_acc",$data);
+            return insertRow($this->tbl_name,$data);
         }
         else{
             return false;
@@ -142,7 +126,7 @@ class M_Account extends CI_Model{
             "acc_email" => $this->acc_email,
             "acc_status" => "ACTIVE"
         );
-        if(!isExistsInTable("mstr_acc",$where)){
+        if(!isExistsInTable($this->tbl_name,$where)){
             $where = array(
                 "id_submit_acc" => $this->id_submit_acc,
             );
@@ -156,7 +140,7 @@ class M_Account extends CI_Model{
                 "acc_last_modified" => $this->acc_last_modified,
                 "id_last_modified" => $this->id_last_modified,
             );
-            updateRow("mstr_acc",$data,$where);
+            updateRow($this->tbl_name,$data,$where);
             return true;
         }
         else{
@@ -172,7 +156,7 @@ class M_Account extends CI_Model{
             "acc_last_modified" => $this->acc_last_modified,
             "id_last_modified" => $this->id_last_modified,
         );
-        updateRow("mstr_acc",$data,$where);
+        updateRow($this->tbl_name,$data,$where);
         return true;
     }
     public function login(){
@@ -183,7 +167,7 @@ class M_Account extends CI_Model{
         $field = array(
             "id_submit_acc","acc_name", "acc_pswd"
         );
-        $result = selectRow("mstr_acc",$where,$field);
+        $result = selectRow($this->tbl_name,$where,$field);
         if($result->num_rows() > 0){
             $result = $result->result_array();
             if (password_verify($this->acc_pswd, $result[0]["acc_pswd"])){

@@ -10,8 +10,9 @@ class Page_generator{
     public function page_open(){
         $this->CI->load->view("req_include/page_open");
     }
-    public function navbar(){
-        $this->CI->load->view("req_include/navbar");
+    public function navbar($id_submit_acc){
+        $data["user_level"] = $this->CI->user_verification->get_user_level($id_submit_acc);
+        $this->CI->load->view("req_include/navbar",$data);
     }
     public function page_close(){
         $this->CI->load->view("req_include/page_close");
