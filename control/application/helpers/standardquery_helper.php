@@ -78,8 +78,8 @@ if ( ! function_exists('isExistsInTable')){
         else return 1; /*not exists*/
     }   
 }
-if ( ! function_exists('getMaxId')){
-    function getMaxId($table,$coloumn,$where){
+if ( ! function_exists('getLastId')){
+    function getLastId($table,$coloumn,$where){
         $CI =& get_instance();
         $CI->db->select("max(".$coloumn.") as maxId");
         $result = $CI->db->get_where($table,$where);
