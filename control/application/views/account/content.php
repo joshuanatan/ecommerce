@@ -13,7 +13,9 @@
         <table class = "table table-bordered table-hover table-striped">
             <thead>
                 <tr>
+                    <?php for($a = 0; $a<count($col); $a++):?>
                     <th style = "cursor:pointer" onclick = "sort('table_name')" class = "text-center align-middle">Coloumn 1 <span class="badge badge-light align-top">ASC</span></th>
+                    <?php endfor;?>
                     <th style = "cursor:pointer" onclick = "sort('table_name')" class = "text-center align-middle">Coloumn 2</th>
                 </tr>
             </thead>

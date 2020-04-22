@@ -76,6 +76,41 @@ class M_Account extends CI_Model{
         DELIMITER ;
         ";
     }
+    public function column(){
+        $column = array(
+            array(
+                "col_name" => "id_submit_acc",
+                "col_disp" => "ID",
+                "order_by" => true
+            ),
+            array(
+                "col_name" => "acc_name",
+                "col_disp" => "Account Name",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "acc_email",
+                "col_disp" => "Account Email",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "acc_phone",
+                "col_disp" => "Account Phone",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "acc_level",
+                "col_disp" => "Account Level",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "acc_status",
+                "col_disp" => "Status",
+                "order_by" => false
+            ),
+        );
+        return $column;
+    }
     public function detail(){
         $where = array(
             "id_submit_acc" => $this->id_submit_acc,
@@ -86,14 +121,14 @@ class M_Account extends CI_Model{
         $result = selectRow($this->tbl_name,$where,$field);
         return $result;
     }
-    public function list(){
-        $where = array(
-            "acc_status !=" => "NOT ACTIVE"
+    public function list($page = 1,$order_by = "acc_name", $order_direction = "ASC"){
+        $query = "
+        select acc_name,acc_email,acc_phone,acc_status,acc_last_modified,acc_level
+        from ".$this->tbl_name." where acc_status != ? order by ".$order_by." ".$order_direction." limit 10 offset ".($page-1)*10;
+        $args = array(
+            "NOT ACTIVE"
         );
-        $field = array(
-            "acc_name","acc_email","acc_phone","acc_status","acc_last_modified","acc_level"
-        );
-        $result = selectRow($this->tbl_name,$where,$field);
+        $result = executeQuery($query,$args);
         return $result;
     }
     public function insert(){
