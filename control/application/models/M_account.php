@@ -4,6 +4,7 @@ date_default_timezone_set("Asia/Jakarta");
 
 class M_Account extends CI_Model{
     private $tbl_name = "mstr_acc";
+    private $column_list = "";
     private $id_submit_acc = 0;
     private $acc_name = "";
     private $acc_email = "";
@@ -23,6 +24,39 @@ class M_Account extends CI_Model{
         $this->acc_created_date = date("Y-m-d H:i:s");
         $this->id_last_modified = $this->session->id_submit_acc;
         $this->id_acc_created = $this->session->id_submit_acc;
+
+        $this->column_list = array(
+            array(
+                "col_name" => "id_submit_acc",
+                "col_disp" => "ID",
+                "order_by" => true
+            ),
+            array(
+                "col_name" => "acc_name",
+                "col_disp" => "Account Name",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "acc_email",
+                "col_disp" => "Account Email",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "acc_phone",
+                "col_disp" => "Account Phone",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "acc_level",
+                "col_disp" => "Account Level",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "acc_status",
+                "col_disp" => "Status",
+                "order_by" => false
+            ),
+        );
     }
     public function install(){
         $query = "
@@ -77,39 +111,13 @@ class M_Account extends CI_Model{
         ";
     }
     public function column(){
-        $column = array(
-            array(
-                "col_name" => "id_submit_acc",
-                "col_disp" => "ID",
-                "order_by" => true
-            ),
-            array(
-                "col_name" => "acc_name",
-                "col_disp" => "Account Name",
-                "order_by" => false
-            ),
-            array(
-                "col_name" => "acc_email",
-                "col_disp" => "Account Email",
-                "order_by" => false
-            ),
-            array(
-                "col_name" => "acc_phone",
-                "col_disp" => "Account Phone",
-                "order_by" => false
-            ),
-            array(
-                "col_name" => "acc_level",
-                "col_disp" => "Account Level",
-                "order_by" => false
-            ),
-            array(
-                "col_name" => "acc_status",
-                "col_disp" => "Status",
-                "order_by" => false
-            ),
+        return $this->column_list;
+    }
+    public function total_data(){
+        $where = array(
+            "acc_status" => "ACTIVE"
         );
-        return $column;
+        return getAmount($this->tbl_name,"id_submit_acc",$where);
     }
     public function detail(){
         $where = array(
@@ -121,10 +129,27 @@ class M_Account extends CI_Model{
         $result = selectRow($this->tbl_name,$where,$field);
         return $result;
     }
-    public function list($page = 1,$order_by = "acc_name", $order_direction = "ASC"){
+    public function list($page = 1,$order_by = "acc_name", $order_direction = "ASC", $search_key = "",$data_per_page = 10){
+        $order_by = $this->column_list[$order_by]["col_name"];
+        $search_query = "";
+        if($search_query != ""){
+            $search_query .= "AND
+            ( 
+                id_submit_acc LIKE '%".$search_key."%' OR
+                acc_name LIKE '%".$search_key."%' OR
+                acc_pswd LIKE '%".$search_key."%' OR
+                acc_phone LIKE '%".$search_key."%' OR
+                acc_level LIKE '%".$search_key."%' OR
+                acc_status LIKE '%".$search_key."%'
+            )
+            ";
+        }
         $query = "
-        select acc_name,acc_email,acc_phone,acc_status,acc_last_modified,acc_level
-        from ".$this->tbl_name." where acc_status != ? order by ".$order_by." ".$order_direction." limit 10 offset ".($page-1)*10;
+        SELECT id_submit_acc,acc_name,acc_email,acc_phone,acc_status,acc_last_modified,acc_level
+        FROM ".$this->tbl_name." 
+        WHERE acc_status != ? ".$search_query."  
+        ORDER BY ".$order_by." ".$order_direction." 
+        LIMIT 10 OFFSET ".($page-1)*$data_per_page;
         $args = array(
             "NOT ACTIVE"
         );
