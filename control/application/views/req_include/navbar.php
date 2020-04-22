@@ -235,16 +235,25 @@
             <div>
                 <ul class="site-menu" data-plugin="menu">
                     <li class="site-menu-category">Master Data</li>
+
+                    <?php if(strtoupper($current) == "WELCOME"):?>
                     <li class="site-menu-item active">
+                    <?php else:?>
+                    <li class="site-menu-item">
+                    <?php endif;?>
                         <a class="animsition-link" href="<?php echo base_url();?>welcome/dashboard">
                             <i class="site-menu-icon md-view-dashboard" aria-hidden="true"></i>
                             <span class="site-menu-title">Dashboard</span>
                         </a>
                     </li>
                     <?php if($user_level == "SUPER ADMIN"):?>
+                    <?php if(strtoupper($current) == "ACCOUNT"):?>
+                    <li class="site-menu-item active">
+                    <?php else:?>
                     <li class="site-menu-item">
+                    <?php endif;?>
                         <a class="animsition-link" href="<?php echo base_url();?>account">
-                            <i class="site-menu-icon md-view-dashboard" aria-hidden="true"></i>
+                            <i class="site-menu-icon md-account" aria-hidden="true"></i>
                             <span class="site-menu-title">Account</span>
                         </a>
                     </li>
