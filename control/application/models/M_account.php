@@ -8,15 +8,74 @@ class M_Account extends CI_Model{
     private $acc_email = "";
     private $acc_pswd = "";
     private $acc_phone = "";
+    private $acc_level = "";
+    private $acc_status = "";
+
     private $acc_last_modified = "";
+    private $acc_created_date = "";
     private $id_last_modified = 0;
+    private $id_acc_created = 0;
 
     public function __construct(){
         parent::__construct();
         $this->acc_last_modified = date("Y-m-d H:i:s");
+        $this->acc_created_date = date("Y-m-d H:i:s");
         $this->id_last_modified = $this->session->id_submit_acc;
+        $this->id_acc_created = $this->session->id_submit_acc;
     }
-    public function login(){
+    public function install(){
+        $query = "
+        create table mstr_acc(
+            id_submit_acc int primary key auto_increment,
+            acc_name varchar(50),
+            acc_email varchar(100),
+            acc_pswd varchar(255),
+            acc_phone varchar(15),
+            acc_level varchar(30),
+            acc_status varchar(20),
+            acc_last_modified datetime,
+            acc_created_date datetime,
+            id_last_modified int,
+            id_acc_created int
+        );
+        create table mstr_acc_log(
+            id_submit_mstr_acc_log int primary key auto_increment,
+            id_submit_acc int,
+            executed_action varchar(30),
+            acc_name varchar(50),
+            acc_email varchar(100),
+            acc_pswd varchar(255),
+            acc_phone varchar(15),
+            acc_level varchar(30),
+            acc_status varchar(20),
+            acc_last_modified datetime,
+            acc_created_date datetime,
+            id_last_modified int,
+            id_acc_created int
+        );
+        DROP TRIGGER IF EXISTS LOG_BEFORE_UPDATE_ACC;
+        DELIMITER $$
+            CREATE TRIGGER LOG_BEFORE_UPDATE_ACC
+            BEFORE UPDATE 
+            ON mstr_acc FOR EACH ROW 
+            BEGIN
+                INSERT INTO mstr_acc_log(id_submit_acc,executed_action,acc_name,acc_email,acc_pswd,acc_phone,acc_level,acc_status,acc_last_modified,acc_created_date,id_last_modified,id_acc_created) 
+                VALUES(OLD.id_submit_acc,'BEFORE UPDATE',OLD.acc_name,OLD.acc_email,OLD.acc_pswd,OLD.acc_phone,OLD.acc_level,OLD.acc_status,OLD.acc_last_modified,OLD.acc_created_date,OLD.id_last_modified,OLD.id_acc_created);
+            END$$
+        DELIMITER ;
+        DROP TRIGGER IF EXISTS LOG_BEFORE_DELETE_ACC;
+        DELIMITER $$
+            CREATE TRIGGER LOG_BEFORE_DELETE_ACC
+            BEFORE UPDATE 
+            ON mstr_acc FOR EACH ROW 
+            BEGIN
+                INSERT INTO mstr_acc_log(id_submit_acc,executed_action,acc_name,acc_email,acc_pswd,acc_phone,acc_level,acc_status,acc_last_modified,acc_created_date,id_last_modified,id_acc_created) 
+                VALUES(OLD.id_submit_acc,'BEFORE DELETE',OLD.acc_name,OLD.acc_email,OLD.acc_pswd,OLD.acc_phone,OLD.acc_level,OLD.acc_status,OLD.acc_last_modified,OLD.acc_created_date,OLD.id_last_modified,OLD.id_acc_created);
+            END$$
+        DELIMITER ;
+        ";
+    }
+    public function detail(){
         $where = array(
             "acc_email" => $this->acc_email,
             "acc_status" => "ACTIVE"
@@ -43,27 +102,78 @@ class M_Account extends CI_Model{
             return false;
         }
     }
-    public function insert(){
-        $data = array(
-            "acc_name"  => $this->acc_name,
-            "acc_email" => $this->acc_email,
-            "acc_pswd" => password_hash($this->acc_pswd,PASSWORD_DEFAULT),
-            "acc_phone" => $this->acc_phone,
-            "acc_status" => "ACTIVE",
-            "acc_last_modified" => $this->acc_last_modified,
-            "id_last_modified" => $this->id_last_modified,
-        );
-        return insertRow("mstr_acc",$data);
-    }
     public function list(){
         $where = array(
-            "acc_status !=" => "DELETED"
+            "acc_status !=" => "NOT ACTIVE"
         );
         $field = array(
             "acc_name","acc_email","acc_phone","acc_status","acc_last_modified"
         );
         $result = selectRow("mstr_acc",$where,$field);
         return $result;
+    }
+    public function insert(){
+        $where = array(
+            "acc_email" => $this->acc_email,
+            "acc_status" => "ACTIVE"
+        );
+        if(!isExistsInTable("mstr_acc",$where)){
+            $data = array(
+                "acc_name"  => $this->acc_name,
+                "acc_email" => $this->acc_email,
+                "acc_pswd" => password_hash($this->acc_pswd,PASSWORD_DEFAULT),
+                "acc_phone" => $this->acc_phone,
+                "acc_level" => $this->acc_level,
+                "acc_status" => $this->acc_status,
+                "acc_last_modified" => $this->acc_last_modified,
+                "acc_created_date" => $this->acc_created_date,
+                "id_last_modified" => $this->id_last_modified,
+                "id_acc_created" => $this->id_acc_created,
+            );
+            return insertRow("mstr_acc",$data);
+        }
+        else{
+            return false;
+        }
+    }
+    public function update(){
+        $where = array(
+            "id_submit_acc !=" => $this->id_submit_acc,
+            "acc_email" => $this->acc_email,
+            "acc_status" => "ACTIVE"
+        );
+        if(!isExistsInTable("mstr_acc",$where)){
+            $where = array(
+                "id_submit_acc" => $this->id_submit_acc,
+            );
+            $data = array(
+                "acc_name"  => $this->acc_name,
+                "acc_email" => $this->acc_email,
+                "acc_pswd" => password_hash($this->acc_pswd,PASSWORD_DEFAULT),
+                "acc_phone" => $this->acc_phone,
+                "acc_level" => $this->acc_level,
+                "acc_status" => $this->acc_status,
+                "acc_last_modified" => $this->acc_last_modified,
+                "id_last_modified" => $this->id_last_modified,
+            );
+            updateRow("mstr_acc",$data,$where);
+            return true;
+        }
+        else{
+            return false;
+        } 
+    }
+    public function delete(){
+        $where = array(
+            "id_submit_acc" => $this->id_submit_acc,
+        );
+        $data = array(
+            "acc_status" => "NOT ACTIVE",
+            "acc_last_modified" => $this->acc_last_modified,
+            "id_last_modified" => $this->id_last_modified,
+        );
+        updateRow("mstr_acc",$data,$where);
+        return true;
     }
     #setter & getter
     public function set_id_submit_acc($id_submit_acc){
@@ -111,6 +221,24 @@ class M_Account extends CI_Model{
             return false;
         }
     }
+    public function set_acc_status($acc_status){
+        if($acc_status != ""){
+            $this->acc_status = $acc_status;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    public function set_acc_level($acc_level){
+        if($acc_level != ""){
+            $this->acc_level = $acc_level;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
     public function get_id_submit_acc(){
         return $this->id_submit_acc;
     }
@@ -125,6 +253,12 @@ class M_Account extends CI_Model{
     }
     public function get_acc_phone(){
         return $this->acc_phone;
+    }
+    public function get_acc_status(){
+        return $this->acc_status;
+    }
+    public function get_acc_level(){
+        return $this->acc_level;
     }
 }
 ?>
