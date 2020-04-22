@@ -87,7 +87,7 @@ class Welcome extends CI_Controller{
         $this->check_session();
         $this->page_generator->head();
         $this->page_generator->page_open();
-        $this->page_generator->navbar($this->session->id_submit_acc);
+        $this->page_generator->navbar($this->session->id_submit_acc,"welcome");
         $this->load->view("dashboard/page_open");
         $this->load->view("dashboard/content");
         $this->page_generator->page_close();
