@@ -14,19 +14,16 @@
             <thead>
                 <tr>
                     <?php for($a = 0; $a<count($col); $a++):?>
-                    <th style = "cursor:pointer" onclick = "sort('table_name')" class = "text-center align-middle">Coloumn 1 <span class="badge badge-light align-top">ASC</span></th>
+                    <th id = "col<?php echo $a;?>" style = "cursor:pointer" onclick = "sort(<?php echo $a;?>)" class = "text-center align-middle"><?php echo $col[$a]["col_disp"];?> 
+                    <?php if($a == 0):?>
+                    <span class="badge badge-light align-top" id = "orderDirection">ASC</span>
+                    <?php endif;?>
+                    </th>
                     <?php endfor;?>
-                    <th style = "cursor:pointer" onclick = "sort('table_name')" class = "text-center align-middle">Coloumn 2</th>
+                    <th class = "text-center align-middle">Action</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td class = "align-middle"></td>
-                    <td class = "align-middle text-center">
-                        <i style = "cursor:pointer;font-size:large" class = "text-primary md-edit"></i> | 
-                        <i style = "cursor:pointer;font-size:large" class = "text-danger md-delete"></i>
-                    </td>
-                </tr>
+            <tbody id = "content_container">
             </tbody>
         </table>
     </div>
@@ -79,13 +76,30 @@
     </div>
 </div>
 <script>
+    var orderBy = 0;
+    var orderDirection = "ASC";
+    var searchKey = "";
     function refresh(page = 1) {
         $.ajax({
-            url: "<?php echo base_url() ?>",
+            url: "<?php echo base_url();?>f/account/list?orderBy="+orderBy+"&orderDirection="+orderDirection+"&page="+page+"&searchKey="+searchKey,
             type: "GET",
             dataType: "JSON",
             success: function(respond) {
                 var html = "";
+                for(var a = 0; a<respond["content"].length; a++){
+                    html += "<tr>";
+                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["id"]+"</td>";
+                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["name"]+"</td>";
+                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["email"]+"</td>";
+                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["phone"]+"</td>";
+                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["status"]+"</td>";
+                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["level"]+"</td>";
+                    html += "<td class = 'align-middle text-center'><i style = 'cursor:pointer;font-size:large' class = 'text-primary md-edit'></i> | <i style = 'cursor:pointer;font-size:large' class = 'text-danger md-delete'></i></td>";
+                    html += "</tr>";
+                }
+                $("#content_container").html(html);
+
+                html = "";
                 if(respond["page"]["previous"]){
                     html += '<li class="page-item"><a class="page-link" onclick = "refresh('+(respond["page"]["before"])+')"><</a></li>';
                 }
@@ -115,8 +129,25 @@
             }
         });
     }
-    function sort(col_name){
-
+    function sort(colNum){
+        if(parseInt(colNum) != orderBy){
+            orderBy = colNum; 
+            orderDirection = "ASC";
+            var orderDirectionHtml = '<span class="badge badge-light align-top" id = "orderDirection">ASC</span>';
+            $("#orderDirection").remove();
+            $("#col"+colNum).append(orderDirectionHtml);
+        }
+        else{
+            var direction = $("#orderDirection").text();
+            if(direction == "ASC"){
+                orderDirection = "DESC";
+            }
+            else{
+                orderDirection = "ASC";
+            }
+            $("#orderDirection").text(orderDirection);
+        }
+        refresh();
     }
 </script>
 <script>
