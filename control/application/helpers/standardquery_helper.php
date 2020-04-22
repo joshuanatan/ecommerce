@@ -78,8 +78,8 @@ if ( ! function_exists('isExistsInTable')){
         else return false; /*not exists*/
     }   
 }
-if ( ! function_exists('getLastId')){
-    function getLastId($table,$coloumn,$where){
+if ( ! function_exists('getMaxId')){
+    function getMaxId($table,$coloumn,$where){
         $CI =& get_instance();
         $CI->db->select("max(".$coloumn.") as maxId");
         $result = $CI->db->get_where($table,$where);
@@ -152,10 +152,14 @@ if(! function_exists('selectLike')){
     }
 }
 if(! function_exists('executeQuery')){
-    function executeQuery($query){
-        
+    function executeQuery($query,$args = ""){
         $CI =& get_instance();
-        return $CI->db->query($query);
+        if($args != ""){
+            return $CI->db->query($query,$args);
+        }
+        else{
+            return $CI->db->query($query);
+        }
     }
 }
 
