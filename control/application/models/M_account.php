@@ -132,7 +132,7 @@ class M_Account extends CI_Model{
     public function list($page = 1,$order_by = "acc_name", $order_direction = "ASC", $search_key = "",$data_per_page = 10){
         $order_by = $this->column_list[$order_by]["col_name"];
         $search_query = "";
-        if($search_query != ""){
+        if($search_key != ""){
             $search_query .= "AND
             ( 
                 id_submit_acc LIKE '%".$search_key."%' OR
@@ -193,7 +193,6 @@ class M_Account extends CI_Model{
             $data = array(
                 "acc_name"  => $this->acc_name,
                 "acc_email" => $this->acc_email,
-                "acc_pswd" => password_hash($this->acc_pswd,PASSWORD_DEFAULT),
                 "acc_phone" => $this->acc_phone,
                 "acc_level" => $this->acc_level,
                 "acc_status" => $this->acc_status,

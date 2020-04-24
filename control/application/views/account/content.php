@@ -1,5 +1,5 @@
 <div class = "col-lg-12">
-    <button type = "button" class = "btn btn-primary btn-sm" data-toggle = "modal" data-target = "#register_dialog" style = "margin-right:10px">add_button_label</button>
+    <button type = "button" class = "btn btn-primary btn-sm" data-toggle = "modal" data-target = "#register_dialog" style = "margin-right:10px">Add Account</button>
     <div class = "align-middle text-center">
         <i style = "cursor:pointer;font-size:large;margin-left:10px" class = "text-primary md-edit"></i><b> - Edit </b>   
         <i style = "cursor:pointer;font-size:large;margin-left:10px" class = "text-danger md-delete"></i><b> - Delete </b>
@@ -8,7 +8,7 @@
     <div class = "table-responsive ">
         <div class = "form-group">
             <h5>Search Data Here</h5>
-            <input type = "text" class = "form-control form-control-sm col-lg-3 col-sm-12">
+            <input id = "search_box" placeholder = "Search data here..." type = "text" class = "form-control form-control-sm col-lg-3 col-sm-12" onkeyup = "search()">
         </div>
         <table class = "table table-bordered table-hover table-striped">
             <thead>
@@ -36,24 +36,82 @@
     <div class = "modal-dialog">
         <div class = "modal-content">
             <div class = "modal-header">
-                <h4 class = "modal-title">modal_form_title</h4>
+                <h4 class = "modal-title">Add Account Form</h4>
             </div>
             <div class = "modal-body">
-                <form action = "" method = "POST">
-                    <div class = "form-group">
-                        <h5>form_data_label</h5>
-                        <input type = "text" class = "form-control" required name = "">
-                    </div>
-                    <div class = "form-group">
-                        <button type = "button" class = "btn btn-sm btn-danger" data-dismiss = "modal">Cancel</button>
-                        <button type = "submit" class = "btn btn-sm btn-primary">Submit</button>
-                    </div>
-                </form>
+                <div class = "form-group">
+                    <h5>Account Name</h5>
+                    <input type = "text" class = "form-control" required id = "name">
+                </div>
+                <div class = "form-group">
+                    <h5>Account Email</h5>
+                    <input type = "email" class = "form-control" required id = "email">
+                </div>
+                <div class = "form-group">
+                    <h5>Account Password</h5>
+                    <input type = "password" class = "form-control" required id = "pswd">
+                </div>
+                <div class = "form-group">
+                    <h5>Account Phone</h5>
+                    <input type = "text" class = "form-control" required id = "phone">
+                </div>
+                <div class = "form-group">
+                    <h5>Account Level</h5>
+                    <select class = "form-control" required id = "level">
+                        <option value = "USER">USER</option>
+                        <option value = "ADMIN">ADMIN</option>
+                    </select>
+                </div>
+                <div class = "form-group">
+                    <button type = "button" class = "btn btn-sm btn-danger" data-dismiss = "modal">Cancel</button>
+                    <button type = "button" onclick = "register_account()" class = "btn btn-sm btn-primary">Submit</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
+<div class = "modal fade" id = "update_dialog">
+    <div class = "modal-dialog">
+        <div class = "modal-content">
+            <div class = "modal-header">
+                <h4 class = "modal-title">Edit Account Form</h4>
+            </div>
+            <div class = "modal-body">
+                <input type = "hidden" id = "id_edit">
+                <div class = "form-group">
+                    <h5>Account Name</h5>
+                    <input type = "text" class = "form-control" required id = "name_edit">
+                </div>
+                <div class = "form-group">
+                    <h5>Account Email</h5>
+                    <input type = "email" class = "form-control" required id = "email_edit">
+                </div>
+                <div class = "form-group">
+                    <h5>Account Phone</h5>
+                    <input type = "text" class = "form-control" required id = "phone_edit">
+                </div>
+                <div class = "form-group">
+                    <h5>Account Level</h5>
+                    <select class = "form-control" required id = "level_edit">
+                        <option value = "USER">USER</option>
+                        <option value = "ADMIN">ADMIN</option>
+                    </select>
+                </div>
+                <div class = "form-group">
+                    <h5>Account Status</h5>
+                    <select class = "form-control" required id = "status_edit">
+                        <option value = "ACTIVE">ACTIVE</option>
+                        <option value = "NOT ACTIVE">NOT ACTIVE</option>
+                    </select>
+                </div>
+                <div class = "form-group">
+                    <button type = "button" class = "btn btn-sm btn-danger" data-dismiss = "modal">Cancel</button>
+                    <button type = "button" onclick = "update_account()" class = "btn btn-sm btn-primary">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class = "modal fade" id = "delete_dialog">
     <div class = "modal-dialog">
         <div class = "modal-content">
@@ -68,7 +126,7 @@
                     </table>
                     <div class = "row">
                         <button type = "button" class = "btn btn-sm btn-primary col-lg-3 col-sm-12 offset-lg-3" data-dismiss = "modal">Cancel</button>
-                        <button type = "submit" class = "btn btn-sm btn-danger col-lg-3">Delete</button>
+                        <button type = "button" onclick = "remove()" class = "btn btn-sm btn-danger col-lg-3">Delete</button>
                     </div>
                 </form>
             </div>
@@ -79,6 +137,7 @@
     var orderBy = 0;
     var orderDirection = "ASC";
     var searchKey = "";
+    var page = 1;
     function refresh(page = 1) {
         $.ajax({
             url: "<?php echo base_url();?>f/account/list?orderBy="+orderBy+"&orderDirection="+orderDirection+"&page="+page+"&searchKey="+searchKey,
@@ -86,16 +145,28 @@
             dataType: "JSON",
             success: function(respond) {
                 var html = "";
-                for(var a = 0; a<respond["content"].length; a++){
+                if(respond["status"] == "SUCCESS"){
+                    for(var a = 0; a<respond["content"].length; a++){
+                        html += "<tr>";
+                        html += "<td class = 'align-middle text-center' id = 'id"+a+"'>"+respond["content"][a]["id"]+"</td>";
+                        html += "<td class = 'align-middle text-center' id = 'name"+a+"'>"+respond["content"][a]["name"]+"</td>";
+                        html += "<td class = 'align-middle text-center' id = 'email"+a+"'>"+respond["content"][a]["email"]+"</td>";
+                        html += "<td class = 'align-middle text-center' id = 'phone"+a+"'>"+respond["content"][a]["phone"]+"</td>";
+                        html += "<td class = 'align-middle text-center' id = 'level"+a+"'>"+respond["content"][a]["level"]+"</td>";
+                        html += "<td class = 'align-middle text-center' id = 'status"+a+"'>"+respond["content"][a]["status"]+"</td>";
+                        if(respond["content"][a]["id"] != "<?php echo $this->session->id_submit_acc;?>"){
+                            html += "<td class = 'align-middle text-center'><i style = 'cursor:pointer;font-size:large' onclick = 'load_edit_content("+a+")' data-target = '#update_dialog' data-toggle = 'modal' class = 'text-primary md-edit'></i> | <i style = 'cursor:pointer;font-size:large' class = 'text-danger md-delete'></i></td>";
+                        }
+                        else{
+                            html += "<td></td>";
+                        }
+                        html += "</tr>";
+                    }
+                }
+                else{
                     html += "<tr>";
-                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["id"]+"</td>";
-                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["name"]+"</td>";
-                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["email"]+"</td>";
-                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["phone"]+"</td>";
-                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["status"]+"</td>";
-                    html += "<td class = 'align-middle text-center'>"+respond["content"][a]["level"]+"</td>";
-                    html += "<td class = 'align-middle text-center'><i style = 'cursor:pointer;font-size:large' class = 'text-primary md-edit'></i> | <i style = 'cursor:pointer;font-size:large' class = 'text-danger md-delete'></i></td>";
-                    html += "</tr>";
+                    html += "<td colspan = 7 class = 'align-middle text-center'>No Records Found</td>";
+                     html += "</tr>";
                 }
                 $("#content_container").html(html);
 
@@ -148,6 +219,92 @@
             $("#orderDirection").text(orderDirection);
         }
         refresh();
+    }
+    function search(){
+        searchKey = $("#search_box").val();
+        refresh();
+    }
+</script>
+<script>
+    function register_account(){
+        var name = $("#name").val();
+        var email = $("#email").val();
+        var pswd = $("#pswd").val();
+        var phone = $("#phone").val();
+        var level = $("#level").val();
+        $.ajax({
+            url:"<?php echo base_url();?>f/account/register",
+            type:"POST",
+            dataType:"JSON",
+            data:{
+                name:name,
+                email:email,
+                pswd:pswd,
+                phone:phone,
+                level:level
+            },
+            success:function(respond){
+                $("#register_dialog").modal("hide");
+                refresh(page);
+            }
+        });
+
+    }
+    function update_account(){
+        var id = $("#id_edit").val();
+        var name = $("#name_edit").val();
+        var email = $("#email_edit").val();
+        var phone = $("#phone_edit").val();
+        var level = $("#level_edit").val();
+        var status = $("#status_edit").val();
+        $.ajax({
+            url:"<?php echo base_url();?>f/account/update",
+            type:"POST",
+            dataType:"JSON",
+            data:{
+                id:id,
+                name:name,
+                email:email,
+                phone:phone,
+                level:level,
+                status:status
+            },
+            success:function(respond){
+                $("#update_dialog").modal("hide");
+                refresh(page);
+            }
+        });
+    }
+    function remove_account(){
+        $.ajax({
+            url:"<?php echo base_url();?>",
+            type:"DELETE",
+            dataType:"JSON",
+            success:function(respond){
+
+            }
+        });
+
+    }
+</script>
+<script>
+    function load_edit_content(row){
+        var id = $("#id"+row).text();
+        var name = $("#name"+row).text();
+        var email = $("#email"+row).text();
+        var phone = $("#phone"+row).text();
+        var status = $("#status"+row).text();
+        var level = $("#level"+row).text();
+
+        $("#id_edit").val(id);
+        $("#name_edit").val(name);
+        $("#email_edit").val(email);
+        $("#phone_edit").val(phone);
+        $("#level_edit").val(level);
+        $("#status_edit").val(status);
+    }
+    function load_delete_content(row){
+
     }
 </script>
 <script>
