@@ -4,7 +4,6 @@ class CI_Pagination{
     public function __construct(){
 
     }
-    
 	public function generate_pagination_rules($current,$total_data,$dpp){
         #dpp = data per page
         $page_rules = array(

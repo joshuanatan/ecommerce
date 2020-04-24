@@ -129,7 +129,7 @@ class M_Account extends CI_Model{
         $result = selectRow($this->tbl_name,$where,$field);
         return $result;
     }
-    public function list($page = 1,$order_by = "acc_name", $order_direction = "ASC", $search_key = "",$data_per_page = 10){
+    public function list($page = 1,$order_by = "acc_name", $order_direction = "ASC", $search_key = "",$data_per_page = ""){
         $order_by = $this->column_list[$order_by]["col_name"];
         $search_query = "";
         if($search_key != ""){
@@ -153,7 +153,14 @@ class M_Account extends CI_Model{
         $args = array(
             "NOT ACTIVE"
         );
-        $result = executeQuery($query,$args);
+        $result["data"] = executeQuery($query,$args);
+        
+        $query = "
+        SELECT id_submit_acc
+        FROM ".$this->tbl_name." 
+        WHERE acc_status != ? ".$search_query."  
+        ORDER BY ".$order_by." ".$order_direction;
+        $result["total_data"] = executeQuery($query,$args)->num_rows();
         return $result;
     }
     public function insert(){

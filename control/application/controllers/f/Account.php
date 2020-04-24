@@ -18,23 +18,21 @@ class Account extends CI_Controller{
         $data_per_page = 10;
 
         $result = $this->m_account->list($page,$order_by,$order_direction,$search_key,$data_per_page);
-        if($result->num_rows() > 0){
-            $result = $result->result_array();
-            for($a = 0; $a<count($result); $a++){
-                $respond["content"][$a]["id"] = $result[$a]["id_submit_acc"];
-                $respond["content"][$a]["name"] = $result[$a]["acc_name"];
-                $respond["content"][$a]["email"] = $result[$a]["acc_email"];
-                $respond["content"][$a]["phone"] = $result[$a]["acc_phone"];
-                $respond["content"][$a]["status"] = $result[$a]["acc_status"];
-                $respond["content"][$a]["level"] = $result[$a]["acc_level"];
+        if($result["data"]->num_rows() > 0){
+            $result["data"] = $result["data"]->result_array();
+            for($a = 0; $a<count($result["data"]); $a++){
+                $respond["content"][$a]["id"] = $result["data"][$a]["id_submit_acc"];
+                $respond["content"][$a]["name"] = $result["data"][$a]["acc_name"];
+                $respond["content"][$a]["email"] = $result["data"][$a]["acc_email"];
+                $respond["content"][$a]["phone"] = $result["data"][$a]["acc_phone"];
+                $respond["content"][$a]["status"] = $result["data"][$a]["acc_status"];
+                $respond["content"][$a]["level"] = $result["data"][$a]["acc_level"];
             }
         }
         else{
             $respond["status"] = "ERROR";
         }
-
-        $total_data = $this->m_account->total_data();
-        $respond["page"] = $this->pagination->generate_pagination_rules($page,$total_data,$data_per_page);
+        $respond["page"] = $this->pagination->generate_pagination_rules($page,$result["total_data"],$data_per_page);
 
         echo json_encode($respond);
     }
