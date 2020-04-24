@@ -116,17 +116,34 @@
     <div class = "modal-dialog">
         <div class = "modal-content">
             <div class = "modal-header">
-                <h4 class = "modal-title">modal_delete_confirmation_title</h4>
+                <h4 class = "modal-title">Delete Account</h4>
             </div>
             <div class = "modal-body">
                 <form action = "<?php echo base_url();?>alat/delete" method = "POST">
                 <input type = "hidden" name = "attr_id" value = "" id = "attr_id_delete">
-                    <h4 align = "center">confirmation_question</h4>
+                    <h4 align = "center">Are you sure want to delete this account?</h4>
                     <table class = "table table-bordered table-striped table-hover">
+                        <input type = "hidden" id = "id_delete">
+                        <tr>
+                            <th class = "align-middle text-center">Account Name</th>
+                            <td class = "align-middle text-center" id = "name_delete"></td>
+                        </tr>
+                        <tr>
+                            <th class = "align-middle text-center">Account Email</th>
+                            <td class = "align-middle text-center" id = "email_delete"></td>
+                        </tr>
+                        <tr>
+                            <th class = "align-middle text-center">Account Phone</th>
+                            <td class = "align-middle text-center" id = "phone_delete"></td>
+                        </tr>
+                        <tr>
+                            <th class = "align-middle text-center">Account Level</th>
+                            <td class = "align-middle text-center" id = "nevel_delete"></td>
+                        </tr>
                     </table>
                     <div class = "row">
                         <button type = "button" class = "btn btn-sm btn-primary col-lg-3 col-sm-12 offset-lg-3" data-dismiss = "modal">Cancel</button>
-                        <button type = "button" onclick = "remove()" class = "btn btn-sm btn-danger col-lg-3">Delete</button>
+                        <button type = "button" onclick = "remove_account()" class = "btn btn-sm btn-danger col-lg-3">Delete</button>
                     </div>
                 </form>
             </div>
@@ -138,7 +155,8 @@
     var orderDirection = "ASC";
     var searchKey = "";
     var page = 1;
-    function refresh(page = 1) {
+    function refresh(req_page = 1) {
+        page = req_page;
         $.ajax({
             url: "<?php echo base_url();?>f/account/list?orderBy="+orderBy+"&orderDirection="+orderDirection+"&page="+page+"&searchKey="+searchKey,
             type: "GET",
@@ -155,7 +173,7 @@
                         html += "<td class = 'align-middle text-center' id = 'level"+a+"'>"+respond["content"][a]["level"]+"</td>";
                         html += "<td class = 'align-middle text-center' id = 'status"+a+"'>"+respond["content"][a]["status"]+"</td>";
                         if(respond["content"][a]["id"] != "<?php echo $this->session->id_submit_acc;?>"){
-                            html += "<td class = 'align-middle text-center'><i style = 'cursor:pointer;font-size:large' onclick = 'load_edit_content("+a+")' data-target = '#update_dialog' data-toggle = 'modal' class = 'text-primary md-edit'></i> | <i style = 'cursor:pointer;font-size:large' class = 'text-danger md-delete'></i></td>";
+                            html += "<td class = 'align-middle text-center'><i style = 'cursor:pointer;font-size:large' onclick = 'load_edit_content("+a+")' data-target = '#update_dialog' data-toggle = 'modal' class = 'text-primary md-edit'></i> | <i onclick = 'load_delete_content("+a+")' data-toggle = 'modal' data-target = '#delete_dialog' style = 'cursor:pointer;font-size:large' class = 'text-danger md-delete'></i></td>";
                         }
                         else{
                             html += "<td></td>";
@@ -276,12 +294,14 @@
         });
     }
     function remove_account(){
+        var id_account = $("#id_delete").text();
         $.ajax({
-            url:"<?php echo base_url();?>",
+            url:"<?php echo base_url();?>f/account/delete/"+id_account,
             type:"DELETE",
             dataType:"JSON",
             success:function(respond){
-
+                $("#delete_dialog").modal("hide");
+                refresh(page);
             }
         });
 
@@ -304,7 +324,17 @@
         $("#status_edit").val(status);
     }
     function load_delete_content(row){
+        var id_delete = $("#id"+row).text(); 
+        var name_delete = $("#name"+row).text(); 
+        var email_delete = $("#email"+row).text(); 
+        var phone_delete = $("#phone"+row).text(); 
+        var nevel_delete = $("#level"+row).text(); 
 
+        $("#id_delete").html(id_delete);
+        $("#name_delete").html(name_delete);
+        $("#email_delete").html(email_delete);
+        $("#phone_delete").html(phone_delete);
+        $("#nevel_delete").html(nevel_delete);
     }
 </script>
 <script>

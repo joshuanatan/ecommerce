@@ -158,10 +158,19 @@ class Account extends CI_Controller{
         }
         echo json_encode($respond);
     }
-    public function detail(){
-        $this->load->model("");
+    public function delete($id_account){
+        $response["status"] = "SUCCESS";
+        if($id_account != "" && is_numeric($id_account)){
+            $this->load->model("m_account");
+            $this->m_account->set_id_submit_acc($id_account);
+            $this->m_account->delete();
+        }
+        else{
+            $response["status"] = "ERROR";
+        }
+        echo json_encode($response);
     }
-    public function delete(){
+    public function detail(){
         $this->load->model("");
     }
 }
