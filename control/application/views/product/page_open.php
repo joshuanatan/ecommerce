@@ -4,7 +4,7 @@
         <div class="page-header-actions">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?php echo base_url();?>welcome/dashboard">Home</a></li>
-                <li class="breadcrumb-item active">Product</li>
+                <li class="breadcrumb-item active">Productt</li>
             </ol>
         </div>
     </div>

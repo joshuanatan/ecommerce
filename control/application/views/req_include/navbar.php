@@ -258,6 +258,16 @@
                         </a>
                     </li>
                     <?php endif;?>
+                    <?php if(strtoupper($current) == "PRODUCT"):?>
+                    <li class="site-menu-item active">
+                    <?php else:?>
+                    <li class="site-menu-item">
+                    <?php endif;?>
+                        <a class="animsition-link" href="<?php echo base_url();?>product">
+                            <i class="site-menu-icon md-storage" aria-hidden="true"></i>
+                            <span class="site-menu-title">Product</span>
+                        </a>
+                    </li>
                     <li class="site-menu-item has-sub">
                         <a href="javascript:void(0)">
                             <i class="site-menu-icon md-view-compact" aria-hidden="true"></i>

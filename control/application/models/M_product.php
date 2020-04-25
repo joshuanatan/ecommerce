@@ -3,6 +3,7 @@ defined("BASEPATH") or exit("No Direct Script");
 date_default_timezone_set("Asia/Jakarta");
 
 class M_product extends CI_Model{
+    private $column_list = array();
     private $tbl_name = "mstr_product";
     private $id_submit_product;
     private $product_code;
@@ -25,9 +26,45 @@ class M_product extends CI_Model{
         $this->product_created_date = date("Y-m-d H:i:s"); 
         $this->product_last_modified = date("Y-m-d H:i:s"); 
         $this->id_last_modified = $this->session->id_submit_acc; 
-        return true;
         $this->id_acc_created = $this->session->id_submit_acc;
-        return true;
+        $this->column_list = array(
+            array(
+                "col_name" => "product_code",
+                "col_disp" => "Code",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "product_name",
+                "col_disp" => "Product Name",
+                "order_by" => true
+            ),
+            array(
+                "col_name" => "product_desc",
+                "col_disp" => "Product Desc",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "product_stock",
+                "col_disp" => "Stock",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "product_img",
+                "col_disp" => "Display",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "product_price",
+                "col_disp" => "Product Price",
+                "order_by" => false
+            ),
+            array(
+                "col_name" => "product_status",
+                "col_disp" => "Status",
+                "order_by" => false
+            ),
+            
+        );
     }
     public function install(){
         $query = "
@@ -87,6 +124,46 @@ class M_product extends CI_Model{
         ";
         $this->db->query($query);
     }
+    public function column(){
+        return $this->column_list;
+    }
+    public function list($page = 1,$order_by = "product_name", $order_direction = "ASC", $search_key = "",$data_per_page = ""){
+        $order_by = $this->column_list[$order_by]["col_name"];
+        $search_query = "";
+        if($search_key != ""){
+            $search_query .= "AND
+            ( 
+                id_submit_product LIKE '%".$search_key."%' OR
+                product_code LIKE '%".$search_key."%' OR
+                product_name LIKE '%".$search_key."%' OR
+                product_desc LIKE '%".$search_key."%' OR
+                product_stock LIKE '%".$search_key."%' OR
+                product_img LIKE '%".$search_key."%' OR
+                product_price LIKE '%".$search_key."%' OR
+                product_spc_price LIKE '%".$search_key."%' OR
+                product_spc_price_end_date LIKE '%".$search_key."%' OR
+                product_status LIKE '%".$search_key."%'
+            )";
+        }
+        $query = "
+        SELECT id_submit_product,product_code,product_name,product_desc,product_stock,product_img,product_price,product_spc_price,product_spc_price_end_date,product_status
+        FROM ".$this->tbl_name." 
+        WHERE product_status != ? ".$search_query."  
+        ORDER BY ".$order_by." ".$order_direction." 
+        LIMIT 10 OFFSET ".($page-1)*$data_per_page;
+        $args = array(
+            "NOT ACTIVE"
+        );
+        $result["data"] = executeQuery($query,$args);
+        
+        $query = "
+        SELECT id_submit_product
+        FROM ".$this->tbl_name." 
+        WHERE product_status != ? ".$search_query."  
+        ORDER BY ".$order_by." ".$order_direction;
+        $result["total_data"] = executeQuery($query,$args)->num_rows();
+        return $result;
+    }
     public function insert(){
         $where = array(
             "product_name" => $this->product_name
@@ -129,14 +206,16 @@ class M_product extends CI_Model{
                 "product_name" => $this->product_name,
                 "product_desc" => $this->product_desc,
                 "product_stock" => $this->product_stock,
-                "product_img" => $this->product_img,
                 "product_price" => $this->product_price,
                 "product_spc_price" => $this->product_spc_price,
                 "product_spc_price_end_date" => $this->product_spc_price_end_date,
                 "product_last_modified" => $this->product_last_modified,
                 "id_last_modified" => $this->id_last_modified,
             );
-            insertRow("mstr_product",$data);
+            if($this->product_img != "-"){
+                $data["product_img"] = $this->product_img;
+            }
+            updateRow("mstr_product",$data,$where);
             return true;
         }
         else{
