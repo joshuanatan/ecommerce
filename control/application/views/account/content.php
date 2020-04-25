@@ -212,6 +212,12 @@
             },
             error: function(){
                 var html = "";
+                html += "<tr>";
+                html += "<td colspan = 7 class = 'align-middle text-center'>No Records Found</td>";
+                html += "</tr>";
+                $("#content_container").html(html);
+                
+                html = "";
                 html += '<li class="page-item"><a class="page-link" style = "cursor:not-allowed"><</a></li>';
                 html += '<li class="page-item"><a class="page-link" style = "cursor:not-allowed">></a></li>';
                 $("#pagination_container").html(html);

@@ -129,7 +129,7 @@ class M_Account extends CI_Model{
         $result = selectRow($this->tbl_name,$where,$field);
         return $result;
     }
-    public function list($page = 1,$order_by = "acc_name", $order_direction = "ASC", $search_key = "",$data_per_page = ""){
+    public function list($page = 1,$order_by = "id_submit_acc", $order_direction = "ASC", $search_key = "",$data_per_page = ""){
         $order_by = $this->column_list[$order_by]["col_name"];
         $search_query = "";
         if($search_key != ""){
